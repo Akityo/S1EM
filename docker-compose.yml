@@ -1357,7 +1357,7 @@ services:
      - s1em
      
   spiderfoot:
-    image: "dtagdevsec/spiderfoot:2006"
+    image: "dtagdevsec/spiderfoot:2204"
     container_name: spiderfoot
     restart: always
     labels:
