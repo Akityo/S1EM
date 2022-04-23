@@ -524,6 +524,11 @@ services:
         max-file: "3"
     networks:
       - s1em
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   thehive:
     image: 'thehiveproject/thehive4:latest'
@@ -532,7 +537,8 @@ services:
     user: root
     restart: always
     depends_on:
-      - cassandra
+      cassandra:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.thehive.rule=PathPrefix(`/thehive`)"
@@ -612,7 +618,7 @@ services:
   misp:
     image: coolacid/misp-docker:core-latest
     container_name: misp
-    hostname: s1em_hostname
+    hostname: ${HOSTNAME}
     restart: always
     depends_on:
       - redis
@@ -1373,7 +1379,7 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
-     - spiderfoot:/home/spiderfoot
+     - spiderfoot:/home/spiderfoot/.spiderfoot
     networks:
      - s1em
 
@@ -1384,7 +1390,7 @@ services:
       - CMD_DB_URL=mysql://codiuser:codipass@db/codimd
       - CMD_USECDN=true
       - CMD_PROTOCOL_USESSL=true
-      - CMD_DOMAIN=s1em_hostname
+      - CMD_DOMAIN=${HOSTNAME}
       - CMD_URL_PATH=codimd
       - CMD_SESSION_SECRET=1337h4x0r
       - CMD_HSTS_ENABLE=false
