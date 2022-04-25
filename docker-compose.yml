@@ -1339,35 +1339,6 @@ services:
     networks:
      - s1em
 
-  codimd:
-    image: hackmdio/hackmd:2.4.1
-    container_name: codimd
-    environment:
-      - CMD_DB_URL=mysql://codiuser:codipass@db/codimd
-      - CMD_USECDN=true
-      - CMD_PROTOCOL_USESSL=true
-      - CMD_DOMAIN=s1em_hostname
-      - CMD_URL_PATH=codimd
-      - CMD_SESSION_SECRET=1337h4x0r
-      - CMD_HSTS_ENABLE=false
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.codimd.rule=PathPrefix(`/codimd`)"
-      - "traefik.http.routers.codimd.entryPoints=secure"
-      - "traefik.http.routers.codimd.tls=true"
-      - "traefik.http.middlewares.codimd-stripprefix.stripprefix.prefixes=/codimd"
-      - "traefik.http.routers.codimd.middlewares=codimd-stripprefix"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    volumes:
-      - codimd:/home/hackmd/app/public/uploads
-    restart: always
-    networks:
-      - s1em
-
   n8n:
     image: n8nio/n8n
     container_name: n8n
@@ -1485,8 +1456,6 @@ volumes:
    clamav:
     external: false
    spiderfoot:
-    external: false
-   codimd:
     external: false
    n8n_data:
     external: false
