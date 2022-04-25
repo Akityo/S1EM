@@ -14,7 +14,7 @@ echo "##########################################"
 echo "########## UPDATE YARA RULES #############"
 echo "##########################################"
 echo
-git clone https://github.com/Yara-Rules/rules.git tmp
+git clone https://ghproxy.com/github.com/Yara-Rules/rules.git tmp
 rm -fr rules/yara/*
 rm -fr tmp/deprecated
 rm -fr tmp/malware
