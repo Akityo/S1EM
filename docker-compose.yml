@@ -37,7 +37,6 @@ services:
     image: traefik:2.4
     container_name: traefik
     restart: always
-    hostname: ${HOSTNAME}
     ports:
       - "443:443"
     volumes:
@@ -60,7 +59,6 @@ services:
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
     container_name: es01
-    hostname: es01
     restart: always
     environment:
       - node.name=es01
@@ -103,7 +101,6 @@ services:
   es02:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
     container_name: es02
-    hostname: es02
     restart: always
     environment:
       - node.name=es02
@@ -127,45 +124,6 @@ services:
       - xpack.security.transport.ssl.certificate=$CERTS_DIR/es02/es02.crt
       - xpack.security.transport.ssl.key=$CERTS_DIR/es02/es02.key
     volumes: ['data02:/usr/share/elasticsearch/data', 'certs:$CERTS_DIR:ro']
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - s1em
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-
-  es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
-    container_name: es03
-    hostname: es03
-    restart: always
-    environment:
-      - node.name=es03
-      - cluster.name=s1em
-      - node.roles=data,ingest
-      - cluster.initial_master_nodes=es01
-      - discovery.seed_hosts=es01
-      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
-      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
-      - network.host=0.0.0.0
-      - bootstrap.memory_lock=true
-      - xpack.license.self_generated.type=basic
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=$CERTS_DIR/es03/es03.key
-      - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
-      - xpack.security.http.ssl.certificate=$CERTS_DIR/es03/es03.crt
-      - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.verification_mode=certificate
-      - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
-      - xpack.security.transport.ssl.certificate=$CERTS_DIR/es03/es03.crt
-      - xpack.security.transport.ssl.key=$CERTS_DIR/es03/es03.key
-    volumes: ['data03:/usr/share/elasticsearch/data', 'certs:$CERTS_DIR:ro']
     logging:
       driver: "json-file"
       options:
@@ -265,7 +223,7 @@ services:
     image: 'docker.elastic.co/beats/heartbeat:7.17.2'
     container_name: heartbeat
     restart: always
-    hostname: heartbeat
+    hostname: ${HOSTNAME}
     logging:
       driver: "json-file"
       options:
@@ -390,7 +348,6 @@ services:
     image: v1d1an/stoq:3.0.5
     command: run -a yara hash peinfo iocextract hash_ssdeep lief entropy clamav -A mwdb
     container_name: stoq
-    hostname: stoq
     user: root
     restart: always
     volumes:
@@ -433,7 +390,6 @@ services:
   tcpreplay:
     image: v1d1an/tcpreplay:1.0
     container_name: tcpreplay
-    hostname: tcpreplay
     restart: always
     user: root
     network_mode: "host"
@@ -454,7 +410,6 @@ services:
   file-upload:
     image: v1d1an/file-upload:1.0
     container_name: file-upload
-    hostname: file-upload
     restart: always
     user: root
     logging:
@@ -531,11 +486,6 @@ services:
         max-file: "3"
     networks:
       - s1em
-    healthcheck:
-      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   thehive:
     image: 'thehiveproject/thehive4:latest'
@@ -544,8 +494,7 @@ services:
     user: root
     restart: always
     depends_on:
-      cassandra:
-        condition: service_healthy
+      - cassandra
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.thehive.rule=PathPrefix(`/thehive`)"
@@ -625,7 +574,7 @@ services:
   misp:
     image: coolacid/misp-docker:core-latest
     container_name: misp
-    hostname: misp
+    hostname: s1em_hostname
     restart: always
     depends_on:
       - redis
@@ -672,7 +621,6 @@ services:
   misp-modules:
     image: coolacid/misp-docker:modules-latest
     container_name: misp-modules
-    hostname: misp-modules
     restart: always
     environment:
       - "REDIS_BACKEND=redis"
@@ -690,7 +638,6 @@ services:
   mwdb:
     image: certpl/mwdb:master
     container_name: mwdb
-    hostname: mwdb
     restart: always
     env_file:
       - mwdb/mwdb-vars.env
@@ -726,7 +673,6 @@ services:
   mwdb-web:
     image: certpl/mwdb-web:master
     container_name: mwdb-web
-    hostname: mwdb-web
     restart: always
     depends_on:
       - mwdb
@@ -743,7 +689,6 @@ services:
   postgres:
     image: postgres
     container_name: postgres
-    hostname: postgres
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -762,7 +707,6 @@ services:
   karton-system:
     image: certpl/karton-system:master
     container_name: karton-system
-    hostname: karton-system
     depends_on:
       - redis
       - minio
@@ -782,7 +726,6 @@ services:
   karton-classifier:
     image: certpl/karton-classifier:8f02c6e5188414f28d37515d903ce2b6955bc768
     container_name: karton-classifier
-    hostname: karton-classifier
     depends_on:
       - redis
       - minio
@@ -800,7 +743,6 @@ services:
   karton-yaramatcher:
     image: certpl/karton-yaramatcher:ef7fc24197115058051b416a915c4e8fb816bd08
     container_name: karton-yaramatcher
-    hostname: karton-yaramatcher
     command: karton-yaramatcher --rules /rules
     depends_on:
       - redis
@@ -820,7 +762,6 @@ services:
   karton-asciimagic:
     image: certpl/karton-asciimagic:d805f42fc19801e9fed5e91c6431ed035431dab4
     container_name: karton-asciimagic
-    hostname: karton-asciimagic
     depends_on:
       - redis
       - minio
@@ -838,7 +779,6 @@ services:
   karton-archive-extractor:
     image: certpl/karton-archive-extractor:a766ccc52b3c5c3cd23a87f19da8ff0f4a5db99c
     container_name: karton-archive-extractor
-    hostname: karton-archive-extractor
     depends_on:
       - redis
       - minio
@@ -856,7 +796,6 @@ services:
   karton-mwdb-reporter:
     image: certpl/karton-mwdb-reporter:2b0fad105f82ccf157431244d7408b0fc589dac5
     container_name: karton-mwdb-reporter
-    hostname: karton-mwdb-reporter
     depends_on:
       - redis
       - minio
@@ -874,7 +813,6 @@ services:
   minio:
     image: minio/minio:latest
     container_name: minio
-    hostname: minio
     volumes:
       - minio:/data
     ports:
@@ -900,7 +838,6 @@ services:
   rabbitmq:
     image: rabbitmq:3.9-management
     container_name: rabbitmq
-    hostname: rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -918,7 +855,6 @@ services:
   opencti:
     image: opencti/platform:latest
     container_name: opencti
-    hostname: opencti
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -988,7 +924,6 @@ services:
   worker:
     image: opencti/worker:latest
     container_name: worker
-    hostname: worker
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1005,7 +940,6 @@ services:
   connector-history:
     image: opencti/connector-history:latest
     container_name: connector-history
-    hostname: connector-history
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1027,7 +961,6 @@ services:
   connector-export-file-stix:
     image: opencti/connector-export-file-stix:latest
     container_name: connector-export-file-stix
-    hostname: connector-export-file-stix
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1049,7 +982,6 @@ services:
   connector-export-file-csv:
     image: opencti/connector-export-file-csv:latest
     container_name: connector-export-file-csv
-    hostname: connector-export-file-csv
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1071,7 +1003,6 @@ services:
   connector-import-file-stix:
     image: opencti/connector-import-file-stix:latest
     container_name: connector-import-file-stix
-    hostname: connector-import-file-stix
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1093,7 +1024,6 @@ services:
   connector-import-document:
     image: opencti/connector-import-document:latest
     container_name: connector-import-document
-    hostname: connector-import-document
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1119,7 +1049,6 @@ services:
   connector-misp:
     image: opencti/connector-misp:latest
     container_name: connector-misp
-    hostname: connector-misp
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1155,7 +1084,6 @@ services:
   connector-mitre:
     image: opencti/connector-mitre:latest
     container_name: connector-mitre
-    hostname: connector-mitre
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1182,7 +1110,6 @@ services:
   connector-cve:
     image: opencti/connector-cve:latest
     container_name: connector-cve
-    hostname: connector-cve
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1209,7 +1136,6 @@ services:
   connector-alienvault:
     image: opencti/connector-alienvault:latest
     container_name: connector-alienvault
-    hostname: connector-alienvault
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1246,7 +1172,6 @@ services:
   connector-amitt:
     image: opencti/connector-amitt:latest
     container_name: connector-amitt
-    hostname: connector-amitt
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1272,7 +1197,6 @@ services:
   connector-opencti:
     image: opencti/connector-opencti:latest
     container_name: connector-opencti
-    hostname: connector-opencti
     environment:
       - OPENCTI_URL=http://opencti:8080/opencti
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
@@ -1299,7 +1223,6 @@ services:
   cyberchef:
     image: mpepping/cyberchef:latest
     container_name: cyberchef
-    hostname: cyberchef
     restart: always
     labels:
       - "traefik.enable=true"
@@ -1319,9 +1242,9 @@ services:
       - "8000"
 
   homer:
-    image: b4bz/homer:latest
     container_name: homer
     hostname: homer
+    image: b4bz/homer:latest
     restart: always
     environment:
       - PUID=1000
@@ -1377,7 +1300,6 @@ services:
   clamav:
     image: clamav/clamav:latest
     container_name: clamav
-    hostname: clamav
     logging:
       driver: "json-file"
       options:
@@ -1399,7 +1321,6 @@ services:
   spiderfoot:
     image: "dtagdevsec/spiderfoot:2204"
     container_name: spiderfoot
-    hostname: spiderfoot
     restart: always
     labels:
      - "traefik.enable=true"
@@ -1414,19 +1335,18 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
-     - spiderfoot:/home/spiderfoot/.spiderfoot
+     - spiderfoot:/home/spiderfoot
     networks:
      - s1em
 
   codimd:
     image: hackmdio/hackmd:2.4.1
     container_name: codimd
-    hostname: codimd
     environment:
       - CMD_DB_URL=mysql://codiuser:codipass@db/codimd
       - CMD_USECDN=true
       - CMD_PROTOCOL_USESSL=true
-      - CMD_DOMAIN=${HOSTNAME}
+      - CMD_DOMAIN=s1em_hostname
       - CMD_URL_PATH=codimd
       - CMD_SESSION_SECRET=1337h4x0r
       - CMD_HSTS_ENABLE=false
@@ -1451,7 +1371,8 @@ services:
   n8n:
     image: n8nio/n8n
     container_name: n8n
-    hostname: n8n
+    ports:
+      - "127.0.0.1:5678:5678"
     labels:
       - traefik.enable=true
       - traefik.http.routers.n8n.rule=Host(`${HOSTNAME}`)
@@ -1519,12 +1440,10 @@ volumes:
     external: false
    data02:
     external: false
-   data03:
-    external: false
    kibanadata:
     external: false
    certs:
-    external: false   
+    external: false
    zeekdata:
     external: false
    zeekfiles:
