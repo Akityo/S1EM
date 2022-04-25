@@ -138,7 +138,7 @@ echo "##### STARTING ELASTICSEARCH/KIBANA ######"
 echo "##########################################"
 echo
 echo
-docker-compose up -d es01 es02 es03 kibana
+docker-compose up -d es01 es02 kibana
 while [ "$(docker exec es01 sh -c 'curl -sk https://127.0.0.1:9200 -u elastic:$password')" == "" ]; do
   echo "Waiting for Elasticsearch to come online.";
   sleep 15;
