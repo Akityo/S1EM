@@ -138,7 +138,7 @@ echo "##### STARTING ELASTICSEARCH/KIBANA ######"
 echo "##########################################"
 echo
 echo
-docker-compose up -d es01 es02 kibana
+docker-compose up -d es01 es02 es03 kibana
 while [ "$(docker exec es01 sh -c 'curl -sk https://127.0.0.1:9200 -u elastic:$password')" == "" ]; do
   echo "Waiting for Elasticsearch to come online.";
   sleep 15;
@@ -278,6 +278,8 @@ while [ "$(docker exec thehive sh -c 'curl -s http://127.0.0.1:9000')" == "" ]; 
   sleep 15;
 done
 curl -sk -L -XPOST "https://127.0.0.1/thehive/api/v0/organisation" -H 'Content-Type: application/json' -u admin@thehive.local:secret -d "{\"description\": \"SOC team\",\"name\": \"$organization\"}"
+sleep 3
+curl -sk -L -XPOST "https://127.0.0.1/thehive/api/v1/user" -H 'Content-Type: application/json' -u admin@thehive.local:secret -d "{\"login\": \"$admin_account\",\"name\": \"admin\",\"organisation\": \"$organization\",\"profile\": \"org-admin\",\"email\": \"$admin_account\",\"password\": \"$admin_password\"}"
 sleep 3
 curl -sk -L -XPOST "https://127.0.0.1/thehive/api/v1/user" -H 'Content-Type: application/json' -u admin@thehive.local:secret -d "{\"login\": \"$admin_account\",\"name\": \"admin\",\"organisation\": \"$organization\",\"profile\": \"org-admin\",\"email\": \"$admin_account\",\"password\": \"$admin_password\"}"
 sleep 3

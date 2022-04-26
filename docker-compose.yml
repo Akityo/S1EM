@@ -136,6 +136,45 @@ services:
         soft: -1
         hard: -1
 
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
+    container_name: es03
+    hostname: es03
+    restart: always
+    environment:
+      - node.name=es03
+      - cluster.name=s1em
+      - node.roles=data,ingest
+      - cluster.initial_master_nodes=es01
+      - discovery.seed_hosts=es01
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+      - network.host=0.0.0.0
+      - bootstrap.memory_lock=true
+      - xpack.license.self_generated.type=basic
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=$CERTS_DIR/es03/es03.key
+      - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.http.ssl.certificate=$CERTS_DIR/es03/es03.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.transport.ssl.certificate=$CERTS_DIR/es03/es03.crt
+      - xpack.security.transport.ssl.key=$CERTS_DIR/es03/es03.key
+    volumes: ['data03:/usr/share/elasticsearch/data', 'certs:$CERTS_DIR:ro']
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - s1em
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
   filebeat:
     image: 'docker.elastic.co/beats/filebeat:7.17.2'
     container_name: filebeat
@@ -1410,6 +1449,8 @@ volumes:
    data01:
     external: false
    data02:
+    external: false
+   data03:
     external: false
    kibanadata:
     external: false
