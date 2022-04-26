@@ -1,7 +1,0 @@
-- type: tcp
-  enabled: true
-  id: codimd
-  name: Codimd
-  hosts: ["codimd"]
-  ports: [3000]
-  schedule: '@every 30s'
