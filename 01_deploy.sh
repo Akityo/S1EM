@@ -239,17 +239,17 @@ curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: applica
 sleep 3
 curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/user/$admin_account/password/set" -d "{ \"password\": \"$admin_password\" }"
 sleep 3
-curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/MISP_2_1" -d "{\"name\": \"MISP_2_1\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
-sleep 3
-curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/OpenCTI_SearchObservables_2_0" -d "{\"name\": \"OpenCTI_SearchObservables_2_0\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
-sleep 3
-curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/OTXQuery_2_0" -d "{\"name\": \"OTXQuery\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
-sleep 3
-curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/Elasticsearch_IP_Analysis_1_0" -d "{\"name\": \"Elasticsearch_IP_Analysis_1_0\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
-sleep 3
-curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/Elasticsearch_Hash_Analysis_1_0" -d "{\"name\": \"Elasticsearch_Hash_Analysis_1_0\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
-sleep 3
 cortex_apikey=$(curl -sk -XPOST -H "Authorization: Bearer $cortex_api" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/user/$admin_account/key/renew")
+sleep 3
+curl -sk -XPOST -H "Authorization: Bearer $cortex_apikey" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/MISP_2_1" -d "{\"name\": \"MISP_2_1\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
+sleep 3
+curl -sk -XPOST -H "Authorization: Bearer $cortex_apikey" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/OpenCTI_SearchObservables_2_0" -d "{\"name\": \"OpenCTI_SearchObservables_2_0\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
+sleep 3
+curl -sk -XPOST -H "Authorization: Bearer $cortex_apikey" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/OTXQuery_2_0" -d "{\"name\": \"OTXQuery\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
+sleep 3
+curl -sk -XPOST -H "Authorization: Bearer $cortex_apikey" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/Elasticsearch_IP_Analysis_1_0" -d "{\"name\": \"Elasticsearch_IP_Analysis_1_0\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
+sleep 3
+curl -sk -XPOST -H "Authorization: Bearer $cortex_apikey" -H 'Content-Type: application/json' -L "https://127.0.0.1/cortex/api/organization/analyzer/Elasticsearch_Hash_Analysis_1_0" -d "{\"name\": \"Elasticsearch_Hash_Analysis_1_0\",\"configuration\":{\"auto_extract_artifacts\":false,\"check_tlp\":true,\"max_tlp\":2,\"check_pap\":true,\"max_pap\":2},\"jobCache\": 10}"
 echo
 echo
 echo "##########################################"

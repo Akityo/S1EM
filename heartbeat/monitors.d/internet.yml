@@ -2,6 +2,6 @@
   id: Internet
   name: Internet
   service.name: Internet
-  hosts: ["https://www.google.fr"]
+  hosts: ["https://www.baidu.com"]
   check.response.status: [200]
   schedule: '@every 5s'
