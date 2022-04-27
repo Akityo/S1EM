@@ -11,7 +11,7 @@ echo "############# remove container ###########"
 echo "##########################################"
 echo
 echo
-docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
 echo
 echo
 echo "##########################################"
